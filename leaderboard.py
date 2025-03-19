@@ -51,10 +51,8 @@ class leaderboard():
 
                     else:
                         cursor = cnx.cursor()
-                        print("SQL Statement using inputted values")
                         query = "INSERT INTO  leaderboard(name, lvl, linescleared, score) VALUES (%s,%s,%s,%s)"
                         data = (name, level, linescleared, score)
-                        print(query)
 
                         cursor.execute(query, data)
                         cnx.commit()
@@ -177,7 +175,6 @@ class leaderboard():
             query =('SELECT * FROM leaderboard WHERE score = (SELECT MIN(score) FROM leaderboard) LIMIT 1;')
             cursor.execute(query)
             results = cursor.fetchall()
-            print(results)
             if score < results[0][3]:
                 accepted = False
             else:

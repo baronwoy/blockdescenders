@@ -29,6 +29,12 @@ class block:
         if self.rotation_state == len(self.cells):
             self.rotation_state = 0
 
+    def  rotateCCW(self):
+        if self.rotation_state == 0:
+            self.rotation_state = len(self.cells) - 1
+        else:
+            self.rotation_state -= 1
+
     def undo_rotation(self):
         self.rotation_state -= 1
         if self.rotation_state == -1:

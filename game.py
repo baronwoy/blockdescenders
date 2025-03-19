@@ -2,7 +2,7 @@ from blocks import *
 from grid import grid
 import random
 import pygame as py
-
+import copy
 
 class game:
     def __init__(self):
@@ -46,17 +46,17 @@ class game:
 
     def move_left(self):
         self.currentblock.move(0, -1)
-        if self.blockinside() == False or self.blockfits() == False:
+        if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.move(0, 1)
 
     def move_right(self):
         self.currentblock.move(0, 1)
-        if self.blockinside() == False or self.blockfits() == False:
+        if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.move(0, -1)
 
     def move_down(self):
         self.currentblock.move(1, 0)
-        if self.blockinside() == False or self.blockfits() == False:
+        if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.move(-1, 0)
             self.lockblock()
 
@@ -70,9 +70,9 @@ class game:
         self.totallines += numrows
         self.updatescore(numrows)
         if numrows:
-            if self.totallines % 1 == 0:
+            if self.totallines % 2 == 0:
                 self.updatelevel()
-        if self.blockfits() == False:
+        if self.blockfits(self.currentblock) == False:
             self.gameover = True
         self.canhold = True
 
@@ -90,8 +90,8 @@ class game:
         self.canhold = True
         self.hblock = initholdblock()
 
-    def blockfits(self):
-        tiles = self.currentblock.getcellpositions()
+    def blockfits(self, piece):
+        tiles = piece.getcellpositions()
         for tile in tiles:
             if self.grid.is_empty(tile.row, tile.column) == False:
                 return False
@@ -99,11 +99,16 @@ class game:
 
     def rotate(self):
         self.currentblock.rotate()
-        if self.blockinside() == False:
+        if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.undo_rotation()
 
-    def blockinside(self):
-        tiles = self.currentblock.getcellpositions()
+    def rotateCCW(self):
+        self.currentblock.rotateCCW()
+        if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
+            self.currentblock.undo_rotation()
+
+    def blockinside(self, piece):
+        tiles = piece.getcellpositions()
         for tile in tiles:
             if self.grid.is_inside(tile.row, tile.column) == False:
                 return False
@@ -170,6 +175,9 @@ class game:
 
     def draw(self, screen):
         self.grid.draw(screen, 175, 50)
+        g = self.getghostpos()
+        g.id = 8
+        g.draw(screen, 175, 50)
         self.currentblock.draw(screen,175,50)
         if self.hblock.id != -1:
             if self.hblock.id == 4:
@@ -233,12 +241,24 @@ class game:
             self.currentblock.columnoffset = 3
         self.currentblock.rotation_state = 0
 
-    def tiledropdistance(self):
-        drop = 0
-        return drop
+    def getghostpos(self):
+        ghost = self.copy()
+        while self.blockinside(ghost) == True and self.blockfits(ghost) == True:
+            ghost.move(1, 0)
+        ghost.move(-1, 0)
+        return ghost
+
 
     def dropblock(self):
-        pass
+        while self.blockinside(self.currentblock) == True and self.blockfits(self.currentblock) == True:
+            self.currentblock.move(1, 0)
+        self.currentblock.move(-1, 0)
+        self.lockblock()
+
+    def copy(self):
+        return copy.deepcopy(self.currentblock)
+
+
 
 
 
