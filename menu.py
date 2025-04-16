@@ -1,5 +1,6 @@
 import pygame as py
 
+# home screen ui
 class menu():
     def menuui(self, screen):
         screen.fill((100, 100, 100))

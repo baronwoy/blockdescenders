@@ -1,3 +1,4 @@
+# sets the color variables
 class colors:
     dark_grey = (26, 31, 40)
     green = (47, 230, 23)
@@ -11,6 +12,7 @@ class colors:
     dark_blue = (44, 44, 127)
     light_blue = (59, 85, 162)
 
+    # class method to match the colors to the id of blocks
     @classmethod
     def get_cell_colors(cls):
         return [cls.dark_grey, cls.blue, cls.orange, cls.cyan, cls.yellow, cls.green, cls.purple, cls.red, cls.white, cls.dark_blue, cls.light_blue]

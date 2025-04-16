@@ -1,3 +1,4 @@
+# sets the row and column
 class Position:
     def __init__(self, row, column):
         self.row = row

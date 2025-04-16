@@ -19,6 +19,7 @@ class game:
         self.canhold = True
         self.hblock = initholdblock()
 
+    # generates a random block
     def getrandomblock(self):
         if len(self.blocks) == 0:
             self.blocks = [iblock(), jblock(), lblock(), oblock(), sblock(), tblock(), zblock()]
@@ -26,6 +27,7 @@ class game:
         self.blocks.remove(block)
         return block
 
+    # updates score by a formula based on the number of lines cleared in a single place
     def updatescore(self, num):
         if num == 1:
             self.score += 100 * self.lv + 1
@@ -38,44 +40,66 @@ class game:
         else:
             self.score += 1
 
+    # updates levels and limits the level to a maximum of 16
     def updatelevel(self):
             self.lv += 1
             if self.lv > 16:
                 self.lv = 16
             self.updateinterval()
 
+    # moves the current block left
     def move_left(self):
         self.currentblock.move(0, -1)
         if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.move(0, 1)
 
+    # moves the current block right
     def move_right(self):
         self.currentblock.move(0, 1)
         if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.move(0, -1)
 
+    # moves the current block down
     def move_down(self):
         self.currentblock.move(1, 0)
         if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.move(-1, 0)
             self.lockblock()
 
+    # locks the current block in place and takes out the next one
     def lockblock(self):
         tiles = self.currentblock.getcellpositions()
         for position in tiles:
             self.grid.grid[position.row][position.column] = self.currentblock.id
+
+        # takes out the next block from an array of blocks and removes it from the arrray
         self.currentblock = self.nextblock.pop(0)
+
+        # generates a new random block at the end of the array of objects
         self.nextblock.append(self.getrandomblock())
+
+        # gets the number of rows in a single line clear
         numrows = self.grid.clearfullrow()
+
+        # adds the lines to a total line counter
         self.totallines += numrows
+
+        # updates the score
         self.updatescore(numrows)
+
+        # updates the level every 2 lines cleared
         if numrows:
             if self.totallines % 2 == 0:
                 self.updatelevel()
+
+        # ends the game if a block cant be placed
         if self.blockfits(self.currentblock) == False:
             self.gameover = True
+
+        # allows for a hold block to be held
         self.canhold = True
 
+    # resets all the parameters of the game
     def reset(self):
         self.grid.reset()
         self.blocks = [iblock(), jblock(), lblock(), oblock(), sblock(), tblock(), zblock()]
@@ -90,6 +114,7 @@ class game:
         self.canhold = True
         self.hblock = initholdblock()
 
+    # validates whether the block fits in the grid
     def blockfits(self, piece):
         tiles = piece.getcellpositions()
         for tile in tiles:
@@ -97,16 +122,19 @@ class game:
                 return False
         return True
 
+    # rotates the current block clockwise and validates it
     def rotate(self):
         self.currentblock.rotate()
         if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.undo_rotation()
 
+    # rotates the current block counter clock wise and validates it
     def rotateCCW(self):
         self.currentblock.rotateCCW()
         if self.blockinside(self.currentblock) == False or self.blockfits(self.currentblock) == False:
             self.currentblock.undo_rotation()
 
+    # validates whether the block is inside the grid
     def blockinside(self, piece):
         tiles = piece.getcellpositions()
         for tile in tiles:
@@ -114,6 +142,7 @@ class game:
                 return False
         return True
 
+    # method for displaying the text based UI
     def ui(self, surface):
         my_font = py.font.SysFont('', 30)
         my_font2 = py.font.SysFont('', 25)
@@ -161,6 +190,7 @@ class game:
             text_lvval = my_font2.render(lvval, False, (0, 0, 0))
             surface.blit(text_lvval, (130, 517))
 
+    # method to display more object based UI
     def otherui(self, surface):
         hold = py.Rect(25, 50, 150, (400/3))
         py.draw.rect(surface, "black", hold, width=1)
@@ -173,6 +203,7 @@ class game:
         py.draw.circle(surface, (0, 0, 0), (140, 450), 20, width=1)
         py.draw.circle(surface, (0, 0, 0), (140, 525), 20, width=1)
 
+    # drawing the current, hold and ghost block to the screen and the array of nextblocks
     def draw(self, screen):
         self.grid.draw(screen, 175, 50)
         g = self.getghostpos()
@@ -199,16 +230,17 @@ class game:
         else:
             self.nextblock[2].draw(screen,387.5,(400/3 + 200))
 
-
+    # getter method for the drop interval
     def getinterval(self):
         return self.interval
 
+    # updates the interval
     def updateinterval(self):
         self.interval -= 10
         if self.interval < 25:
             self.interval = 25
-        print(self.interval)
 
+    # transfers the current block to the hold block
     def holdblock(self):
         if not self.canhold:
             return
@@ -228,7 +260,7 @@ class game:
             self.hblock.rotation_state = 0
             self.canhold = False
 
-
+    # resets the position of the current block
     def reset_position(self):
         if self.currentblock.id == 3:
             self.currentblock.rowoffset = -1
@@ -241,6 +273,7 @@ class game:
             self.currentblock.columnoffset = 3
         self.currentblock.rotation_state = 0
 
+    # gets the position of the lowest drop the current block can go
     def getghostpos(self):
         ghost = self.copy()
         while self.blockinside(ghost) == True and self.blockfits(ghost) == True:
@@ -248,13 +281,14 @@ class game:
         ghost.move(-1, 0)
         return ghost
 
-
+    # drops the block at the lowest poit it can go
     def dropblock(self):
         while self.blockinside(self.currentblock) == True and self.blockfits(self.currentblock) == True:
             self.currentblock.move(1, 0)
         self.currentblock.move(-1, 0)
         self.lockblock()
 
+    # copys the currentblock for the ghost block
     def copy(self):
         return copy.deepcopy(self.currentblock)
 

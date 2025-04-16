@@ -1,5 +1,6 @@
 import pygame as py
 
+# class to display the game over UI
 class gameover():
     def gameoveruitypebeat(self,thing, surface, my_font):
         score = thing.score
@@ -32,6 +33,7 @@ class gameover():
         surface.blit(text_lv, (250, 220))
         text_lvval = my_font.render(lvval, False, (255, 255, 255))
         surface.blit(text_lvval, (330, 220))
+
 
     def gameoverscreen(self,text, font, text_col, x, y, screen):
         img = font.render(text, False, text_col)

@@ -1,15 +1,20 @@
 from block import block
 from position import Position
 
+# classes for each block
 class lblock(block):
 	def __init__(self):
+        # inherits all from the block class and sets the id for use in the 2D array grid
 		super().__init__(id = 1)
+
+        # sets the rotation of the block
 		self.cells = {
 			0: [Position(0, 2), Position(1, 0), Position(1, 1), Position(1, 2)],
 			1: [Position(0, 1), Position(1, 1), Position(2, 1), Position(2, 2)],
 			2: [Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 0)],
 			3: [Position(0, 0), Position(0, 1), Position(1, 1), Position(2, 1)]
 		}
+        # sets the initial position of the block
 		self.move(0, 3)
 
 class jblock(block):
@@ -75,6 +80,7 @@ class zblock(block):
         }
         self.move(0, 3)
 
+# class for the hold block
 class initholdblock(block):
     def __init__(self):
         super().__init__(id = -1)

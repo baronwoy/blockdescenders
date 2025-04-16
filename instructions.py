@@ -1,6 +1,8 @@
 import pygame as py
 
 class instructions():
+
+    # method to display the ui of the game instructions page
     def instructionsui(self,screen):
         screen.fill((100, 100, 100))
         exitfont = py.font.Font(None, 80)

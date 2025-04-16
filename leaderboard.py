@@ -5,6 +5,7 @@ import pygame as py
 
 class leaderboard():
 
+    # linear search to validate if a name is present within the database
     def search(self, name):
         try:
             cnx = mysql.connector.connect(
@@ -18,21 +19,24 @@ class leaderboard():
             print("Error with connection: {}".format(err))
 
         else:
+            valid = True
             cursor = cnx.cursor()
             query = ("SELECT * FROM leaderboard")
             cursor.execute(query)
             result = cursor.fetchall()
             for i in range(len(result)):
-                if result[i][0] == name:
-                    return False
+                if result[i][0].upper() == name.upper():
+                    valid = False
+                    return valid
                 else:
-                    return True
+                    valid = True
+            return valid
 
 
 
-
-
+    # method to insert the parameters into the database
     def insert(self, name, level, linescleared, score):
+            # validates whether there are 10 records in the database and changes condition based on it
             if self.count() >= 10:
                 valid = self.validate(score)
                 if valid == False:
@@ -70,15 +74,16 @@ class leaderboard():
 
                 else:
                     cursor = cnx.cursor()
-                    print("SQL Statement using inputted values")
+
                     query = "INSERT INTO  leaderboard(name, lvl, linescleared, score) VALUES (%s,%s,%s,%s)"
                     data = (name, level, linescleared, score)
-                    print(query)
+
 
                     cursor.execute(query, data)
                     cnx.commit()
                     cnx.close()
 
+    # display the sorted leaderboard on the screen
     def display(self,screen):
         try:
             cnx = mysql.connector.connect(
@@ -93,6 +98,7 @@ class leaderboard():
 
         else:
             cursor = cnx.cursor()
+            # UI and querys
             screen.fill((255, 255, 255))
             headfont = py.font.SysFont('', 30)
             head2font = py.font.SysFont('', 30)
@@ -103,12 +109,13 @@ class leaderboard():
             level = head2font.render('LEVEL', False, (0, 0, 0))
             linesecleared = head2font.render('LINES', False, (0, 0, 0))
             score = head2font.render('SCORE', False, (0, 0, 0))
-            playagain = normfont.render("PRESS SPACE TO PLAY AGAIN", False, (0,0,0))
+            playagain = normfont.render("PRESS ENTER TO PLAY AGAIN", False, (0,0,0))
             query2 = ("SELECT * FROM leaderboard")
             cursor.execute(query2)
             results = cursor.fetchall()
-
             sortedarray = results
+
+            # insertion sort
             for i in range(1, len(sortedarray)):
                 value = sortedarray[i]
                 pos = i
@@ -157,6 +164,7 @@ class leaderboard():
                 v += 1
             cnx.close()
 
+    # method to delete a record from the database based on the conditions
     def validate(self, score):
         try:
             cnx = mysql.connector.connect(
@@ -188,10 +196,7 @@ class leaderboard():
                 cnx.close()
             return accepted
 
-
-
-
-
+    # counts the amount of records in the database before operations
     def count(self):
         try:
             cnx = mysql.connector.connect(
